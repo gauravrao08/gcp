@@ -1,12 +1,16 @@
 
 https://cloud.google.com/iam/docs/access-resources-aws#iam-workload-pools-create-python
+
 iam role ==> IAM work load identity pool admin
+
 origination policy
+```
 API:-
 Identity and Access Management (IAM) API
 Cloud Resource Manager API
 IAM Service Account Credentials API
 Security Token Service API
+```
 
 https://cloud.google.com/iam/docs/manage-workload-identity-pools-providers#restrict
 origination policies :-
