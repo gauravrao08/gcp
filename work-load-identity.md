@@ -11,6 +11,7 @@ Security Token Service API
 https://cloud.google.com/iam/docs/manage-workload-identity-pools-providers#restrict
 origination policies :-
 constraints/iam.workloadIdentityPoolProviders     ==>  https://sts.amazonaws.com
+
 (optional) constraints/iam.workloadIdentityPoolAwsAccounts  ==>  AWS account number 
 ```
 Step A:
