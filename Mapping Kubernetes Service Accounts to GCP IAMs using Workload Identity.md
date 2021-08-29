@@ -50,4 +50,29 @@ kubectl annotate serviceaccount \
     --namespace K8S_NAMESPACE KSA_NAME \
     iam.gke.io/gcp-service-account=GSA_NAME@PROJECT_ID.iam.gserviceaccount.com
 ```
+7. Create deployment and do changes as per your need
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: example-gke-workload-identity
+ namespace: rao-test
+spec:
+ replicas: 2
+ selector:
+   matchLabels:
+     app: hello
+ template:
+   metadata:
+     labels:
+       app: hello
+   spec:
+     serviceAccountName: rao-ksa     ##update with your k8s service account name
+     containers:
+     - name: work-load-identity
+       image: gauravsonu1991/apache
+         - name: BUCKET_NAME
+           value: gke-workload-identity-your-bucket-name
+```
 
