@@ -43,6 +43,29 @@ gcloud iam service-accounts add-iam-policy-binding \
     --member "serviceAccount:PROJECT_ID.svc.id.goog[K8S_NAMESPACE/KSA_NAME]" \
     GSA_NAME@PROJECT_ID.iam.gserviceaccount.com
 ```
+NOTE: You can also do binding with YAML file.
+
+```
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicy
+metadata:
+  name: iampolicy-workload-identity-sample
+spec:
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: GSA_NAME@PROJECT_ID.iam.gserviceaccount.com
+  bindings:
+    - role: roles/iam.workloadIdentityUser
+      members:
+        - serviceAccount:PROJECT_ID.svc.id.goog[K8S_NAMESPACE/KSA_NAME]
+```
+You need to be able to “Config Connector” on the k8s cluster with the below command.
+
+```
+gcloud container clusters update CLUSTER_NAME \
+    --update-addons ConfigConnector=ENABLED
+```
 
 6. optional
 ```
