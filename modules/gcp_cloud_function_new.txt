@@ -1,0 +1,46 @@
+resource "google_cloudfunctions_function" "function" {
+  for_each            = var.cloud_function
+  project             = var.project_id
+  region              = var.region
+  name                = "${each.key}-${var.env}"
+  runtime             = each.value.runtime
+  entry_point         = each.value.entrypoint
+  available_memory_mb = lookup(each.value, "memory", "256")
+  timeout             = lookup(each.value, "timeout", "60")
+  event_trigger {
+    event_type = "google.pubsub.topic.publish"
+    resource   = "${each.value.trigger_resource}-${var.env}"
+    failure_policy {
+      retry = true
+    }
+  }
+  source_archive_bucket = "backups-${var.project_id}-${var.env}"
+  source_archive_object = google_storage_bucket_object.archive[each.key].name
+  ingress_settings      = "ALLOW_INTERNAL_ONLY"
+  labels                = merge(var.cloud_function_labels, { "cmdb_bus_svc_id" : "${each.value.cmdb_bus_svc_id}" }, { "data_class" : "${each.value.data_class}" })
+  environment_variables = zipmap(split(", ", each.value.env_var_names), split(", ", each.value.env_var_values))
+}
+
+data "archive_file" "function_dist" {
+  for_each    = var.cloud_function
+  type        = "zip"
+  output_path = "${path.root}/files/cloud_function/${each.key}/out/${each.key}.zip"
+  source_dir  = "${path.root}/files/cloud_function/${each.key}/src"
+}
+
+resource "google_storage_bucket_object" "archive" {
+  for_each = var.cloud_function
+  name     = "${each.key}/cloud_function/${each.key}.${data.archive_file.function_dist[each.key].output_base64sha256}.zip"
+  bucket   = "backups-${var.project_id}-${var.env}"
+  source   = data.archive_file.function_dist[each.key].output_path
+}
+
+=================================================================
+
+source                = "../modules/google-cloud-functions"
+  env                   = var.prefix
+  project_id            = var.project_id
+  region                = var.region
+  cloud_function        = var.cloud_function
+  cloud_function_labels = var.cloud_function_labels
+}
